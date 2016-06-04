@@ -166,7 +166,7 @@ func startTest() {
 	right := 0
 	var translation string
 	for k, v := range vocabulary {
-		if i == *numOfQuestions-1 {
+		if i == *numOfQuestions {
 			break
 		}
 		fmt.Println("Word: ", k)
