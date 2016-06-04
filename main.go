@@ -11,7 +11,7 @@ import (
 )
 
 var (
-	vocabularyFile = flag.String("vocabulary", "vocabulary.txt", "File with foreign words")
+	vocabularyFile = flag.String("vocabulary", "vocabularyExample.txt", "File with foreign words")
 	numOfQuestions = flag.Int("questions", 10, "Number of checking words")
 	langValue      = flag.String("lang", "en-ru", "Translating-translated languages in format \"en-ru\"")
 	debug          = flag.Bool("debug", false, "Debug mode")
