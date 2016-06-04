@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/xml"
 	"flag"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -96,6 +97,7 @@ func checkVocabulary() {
 	}
 
 	lines := strings.Split(string(input), "\n")
+	var numOfUntraslatedWords int = 0
 
 	for i, rawWord := range lines {
 
@@ -110,6 +112,7 @@ func checkVocabulary() {
 			parsedWordRaw := strings.Split(rawWord, " - ")
 			vocabulary[parsedWordRaw[0]] = parsedWordRaw[1]
 		} else {
+			numOfUntraslatedWords++
 			vocabulary[rawWord] = translateWord(rawWord)
 			lines[i] = rawWord + " - " + vocabulary[rawWord]
 
@@ -118,6 +121,8 @@ func checkVocabulary() {
 			log.Printf("Splitted rawWord. Key:-%s-, value:-%s-", rawWord, vocabulary[rawWord])
 		}
 	}
+	//TODO: make two loggers!
+	fmt.Printf("Untranslated words in %s: %d.\n", *vocabularyFile, numOfUntraslatedWords)
 	output := strings.Join(lines, "\n")
 	err = ioutil.WriteFile(*vocabularyFile, []byte(output), 0644)
 	if err != nil {
@@ -133,7 +138,55 @@ func checkVocabulary() {
 }
 
 func startTest() {
-	//test
+
+	fmt.Printf("Number of words in database: %d\n", len(vocabulary))
+	fmt.Printf("Inter number of words for test (default - %d): ", *numOfQuestions)
+
+	_, err := fmt.Scanf("%d", numOfQuestions)
+	if err != nil {
+		fmt.Printf("Wrong value; will use default\n")
+	}
+
+	var showList string
+	fmt.Printf("Do you want to see all words before? (y/n) ")
+	fmt.Scanf("%s", &showList)
+	if showList == "y" {
+		for k, v := range vocabulary {
+			if k == "" {
+				continue
+			}
+			fmt.Println(k, " - ", v, "\t")
+		}
+	}
+
+	fmt.Printf("Number of words in database: %d\n", len(vocabulary))
+	fmt.Println("-----------------------------------------")
+
+	i := 0
+	right := 0
+	var translation string
+	for k, v := range vocabulary {
+		if i == *numOfQuestions-1 {
+			break
+		}
+		fmt.Println("Word: ", k)
+		fmt.Printf("A translation of a word: ")
+		fmt.Scanf("%s", &translation)
+		if translation == v {
+			if k == "" {
+				fmt.Println("***(heh): take a gift from me")
+			}
+			fmt.Println("***Good job! Right")
+			right++
+		} else {
+			fmt.Println("***Wrong! :(")
+		}
+		fmt.Println(k, " - ", v)
+		fmt.Printf("***Scope: %d/%d\n", right, *numOfQuestions)
+		fmt.Println("-----------------------------------------")
+		i++
+	}
+	log.Printf("Final scope: %d/%d", right, *numOfQuestions)
 }
 
 func main() {
