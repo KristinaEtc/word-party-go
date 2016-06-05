@@ -13,6 +13,8 @@ import (
 
 var (
 	vocabularyFile = flag.String("vocabulary", "vocabularyExample.txt", "File with foreign words")
+	articleFile    = flag.String("article", "Elon-Musk.htm", "File with article where you got new words")
+	learning       = flag.Bool("learning", false, "See using example from file \"vocabilaryFile\" (set by --vocabulary flag) + \".xml\"")
 	numOfQuestions = flag.Int("questions", 10, "Number of checking words")
 	langValue      = flag.String("lang", "en-ru", "Translating-translated languages in format \"en-ru\"")
 	debug          = flag.Bool("debug", false, "Debug mode")
@@ -29,6 +31,7 @@ type queryWord struct {
 }
 
 var vocabulary = make(map[string]string)
+var articleSentences []string
 
 // Words' format: wordInForeignLang - wordInNativeLang
 func checkTranslateStatus(rawWord string) bool {
@@ -137,6 +140,29 @@ func checkVocabulary() {
 
 }
 
+func findExampleInFile(word string) {
+
+	article := ""
+
+	if articleSentences == nil {
+		input, err := ioutil.ReadFile(*articleFile)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		article = string(input)
+		articleSentences = strings.Split(article, ".")
+	}
+
+	for _, a := range articleSentences {
+		if strings.Contains(a, word) {
+			fmt.Println(a)
+			return
+		}
+	}
+	return
+}
+
 func startTest() {
 
 	fmt.Printf("Number of words in database: %d\n", len(vocabulary))
@@ -182,6 +208,9 @@ func startTest() {
 			fmt.Println("***Wrong! :(")
 		}
 		fmt.Println(k, " - ", v)
+		if *learning == true {
+			findExampleInFile(k)
+		}
 		fmt.Printf("***Scope: %d/%d\n", right, *numOfQuestions)
 		fmt.Println("-----------------------------------------")
 		i++
